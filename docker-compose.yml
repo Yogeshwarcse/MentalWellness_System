@@ -1,0 +1,44 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+
+  ai-service:
+    build: ./ai-service
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./ai-service:/app
+    environment:
+      - PORT=8000
+
+  backend:
+    build: ./backend
+    ports:
+      - "5000:5000"
+    depends_on:
+      - mongodb
+      - ai-service
+    environment:
+      - MONGODB_URI=mongodb://mongodb:27017/mental-wellness
+      - AI_SERVICE_URL=http://ai-service:8000
+      - JWT_SECRET=your_super_secret_key_here
+      - OPENAI_API_KEY=your_openai_api_key_here
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    # Note: For production, you'd use a multi-stage build with Nginx
+    # This is a development-friendly setup
+    command: npm run dev -- --host 0.0.0.0 --port 3000
+
+volumes:
+  mongo-data:

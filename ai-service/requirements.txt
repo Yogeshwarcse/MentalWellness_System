@@ -1,0 +1,11 @@
+fastapi
+uvicorn
+librosa
+numpy
+pandas
+scikit-learn
+tensorflow
+python-multipart
+python-dotenv
+aiofiles
+pydantic
