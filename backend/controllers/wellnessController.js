@@ -8,6 +8,80 @@ const hasOpenAIKey = !!process.env.OPENAI_API_KEY && !process.env.OPENAI_API_KEY
 const openai = hasOpenAIKey ? new OpenAI({ apiKey: process.env.OPENAI_API_KEY }) : null;
 const AI_SERVICE_BASE_URL = process.env.AI_SERVICE_URL || 'http://localhost:8000';
 
+function buildMindfulnessGuidance({ emotion, stressScore = 0, crisis = false }) {
+    const normalizedEmotion = (emotion || 'neutral').toLowerCase();
+    const level = stressScore >= 80 ? 'critical' : stressScore >= 60 ? 'high' : stressScore >= 35 ? 'mild' : 'calm';
+
+    if (crisis || stressScore > 75) {
+        return {
+            title: 'Grounding First',
+            message: 'Your stress looks very high right now. Let’s focus on immediate calm and safety.',
+            practice: {
+                name: 'Box breathing',
+                steps: [
+                    'Inhale through your nose for 4 seconds',
+                    'Hold for 4 seconds',
+                    'Exhale slowly for 4 seconds',
+                    'Hold for 4 seconds — repeat 4 times'
+                ],
+                durationMinutes: 2
+            },
+            suggestion: 'If you feel unsafe or overwhelmed, reach out to a trusted person or your local crisis line.'
+        };
+    }
+
+    const byEmotion = {
+        happy: {
+            title: 'Savor the Good',
+            message: 'You sound brighter. Let’s lock in what’s working so it lasts longer.',
+            practice: { name: 'Gratitude snapshot', steps: ['Name 3 things that went well today', 'Pick 1 and describe why it mattered'], durationMinutes: 3 },
+            suggestion: 'Take one small step that supports this mood (a short walk, water, or texting someone supportive).'
+        },
+        sad: {
+            title: 'Gentle Support',
+            message: 'You sound a bit low. Let’s soften the edges with something kind and steady.',
+            practice: { name: 'Soothing breath', steps: ['Inhale 4 seconds', 'Exhale 6 seconds', 'Relax your shoulders — repeat 8 times'], durationMinutes: 2 },
+            suggestion: 'If you can, do one tiny task that helps future-you (shower, tidy one surface, or a warm drink).'
+        },
+        angry: {
+            title: 'Regulate the Heat',
+            message: 'I’m hearing frustration. Let’s slow your body down before solving anything.',
+            practice: { name: 'Release + reset', steps: ['Unclench your jaw', 'Drop shoulders', 'Exhale fully', 'Count 5 slow breaths'], durationMinutes: 2 },
+            suggestion: 'Try a 60-second pause before replying or deciding anything important.'
+        },
+        fear: {
+            title: 'Steady & Safe',
+            message: 'You sound tense or worried. Let’s bring you back to the present.',
+            practice: { name: '5-4-3-2-1 grounding', steps: ['5 things you see', '4 things you feel', '3 things you hear', '2 things you smell', '1 thing you taste'], durationMinutes: 3 },
+            suggestion: 'Say: “Right now, in this moment, I am safe enough.”'
+        },
+        disgust: {
+            title: 'Reset & Clean Slate',
+            message: 'That felt unpleasant. Let’s reset your nervous system and shift your attention.',
+            practice: { name: 'Sensory reset', steps: ['Sip water slowly', 'Wash hands with warm water', 'Take 5 slow breaths'], durationMinutes: 3 },
+            suggestion: 'If possible, change your environment slightly (fresh air, different room, or open a window).'
+        },
+        surprise: {
+            title: 'Settle After the Spike',
+            message: 'Surprises can jolt your system. Let’s settle your breathing and re-center.',
+            practice: { name: 'Long exhale', steps: ['Inhale 4 seconds', 'Exhale 8 seconds', 'Repeat 6 times'], durationMinutes: 2 },
+            suggestion: 'Ask: “What’s the next best small step?”'
+        },
+        neutral: {
+            title: 'Build a Calm Baseline',
+            message: 'You sound steady. This is a good time to build supportive habits.',
+            practice: { name: '1-minute body scan', steps: ['Notice forehead', 'Notice jaw', 'Notice shoulders', 'Relax on each exhale'], durationMinutes: 1 },
+            suggestion: 'Pick one micro-habit for today: drink water, stretch, or step outside for 2 minutes.'
+        }
+    };
+
+    const base = byEmotion[normalizedEmotion] || byEmotion.neutral;
+    return {
+        ...base,
+        meta: { emotion: normalizedEmotion, stressLevel: level, stressScore }
+    };
+}
+
 const processVoice = async (req, res) => {
     let audioPath = null;
     try {
@@ -78,7 +152,8 @@ const processVoice = async (req, res) => {
         });
 
         // If stressScore is critical, create a CrisisLog and flag response
-        if (stressScore && stressScore > 75) {
+        const crisis = !!(stressScore && stressScore > 75);
+        if (crisis) {
             try {
                 const CrisisLog = require('../models/CrisisLog');
                 await CrisisLog.create({
@@ -97,15 +172,18 @@ const processVoice = async (req, res) => {
             }
         }
 
+        const mindfulnessGuidance = buildMindfulnessGuidance({ emotion, stressScore: stressScore || 0, crisis });
+
         return res.json({
             emotion,
             confidence,
             aiResponse: aiResponseText,
             logId: log._id,
             stressScore: stressScore || 0,
-            crisis: stressScore && stressScore > 75,
+            crisis,
             helpline: '988',
-            actions: stressScore > 75 ? ['deep_breathing', 'call_counselor', 'go_to_safe_place'] : []
+            actions: (stressScore || 0) > 75 ? ['deep_breathing', 'call_counselor', 'go_to_safe_place'] : [],
+            mindfulnessGuidance
         });
 
     } catch (error) {

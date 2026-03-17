@@ -1,12 +1,8 @@
-import React, { useEffect, useState } from 'react';
-import { mindfulnessService } from '../services/api';
-import { Sparkles, Calendar, BookOpen } from 'lucide-react';
+import React, { useEffect, useMemo, useState } from 'react';
+import { Sparkles } from 'lucide-react';
 import { motion } from 'framer-motion';
 
-const MindfulnessDashboard = () => {
-    const [plans, setPlans] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
+const MindfulnessDashboard = ({ currentEmotion, mindfulnessGuidance }) => {
     const [dailyTip, setDailyTip] = useState('');
 
     const quotes = {
@@ -18,42 +14,20 @@ const MindfulnessDashboard = () => {
         fallback: "Every breath is a new beginning. Stay mindful."
     };
 
+    const dynamicTip = useMemo(() => {
+        if (mindfulnessGuidance && (mindfulnessGuidance.message || mindfulnessGuidance.title)) {
+            const title = mindfulnessGuidance.title ? `${mindfulnessGuidance.title}` : 'Mindfulness Guidance';
+            const message = mindfulnessGuidance.message || '';
+            return { title, message };
+        }
+        const key = (currentEmotion || '').toLowerCase();
+        if (quotes[key]) return { title: 'Reflect & Breathe', message: quotes[key] };
+        return { title: 'Reflect & Breathe', message: quotes.fallback };
+    }, [currentEmotion, mindfulnessGuidance]);
+
     useEffect(() => {
-        // For demo, pick a random one if no mood history, or we could pass mood prop
-        const keys = Object.keys(quotes);
-        setDailyTip(quotes[keys[Math.floor(Math.random() * keys.length)]]);
-    }, []);
-
-    const [generating, setGenerating] = useState(false);
-
-    const fetchPlans = async () => {
-        try {
-            setLoading(true);
-            setError(null);
-            const { data } = await mindfulnessService.getPlans();
-            setPlans(data);
-        } catch (err) {
-            console.error('Failed to fetch plans');
-            setError('Could not retrieve mindfulness plans. Please try again later.');
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const handleGenerate = async () => {
-        try {
-            setGenerating(true);
-            await mindfulnessService.generate();
-            await fetchPlans();
-        } catch (err) {
-            console.error('Failed to generate plan');
-            setError('AI generation failed. Please check your connection.');
-        } finally {
-            setGenerating(false);
-        }
-    };
-
-    useEffect(() => { fetchPlans(); }, []);
+        setDailyTip(dynamicTip.message);
+    }, [dynamicTip]);
 
     return (
         <motion.div
@@ -62,122 +36,118 @@ const MindfulnessDashboard = () => {
             transition={{ duration: 0.5 }}
             className="card-elevated"
         >
-            <div className="flex items-center justify-between gap-3 mb-6">
-                <div className="flex items-center gap-3">
-                    <motion.div animate={{ scale: [1, 1.1, 1] }} transition={{ duration: 2, repeat: Infinity }}>
-                        <Sparkles className="text-purple-400" size={28} />
-                    </motion.div>
-                    <div>
-                        <h3 className="text-xl font-bold">Mindfulness Guidance</h3>
-                        <p className="text-xs text-white/60">Your personalized wellness companion</p>
-                    </div>
+            <div className="flex items-center gap-3 mb-6">
+                <motion.div animate={{ scale: [1, 1.1, 1] }} transition={{ duration: 2, repeat: Infinity }}>
+                    <Sparkles className="text-teal-400" size={28} />
+                </motion.div>
+                <div>
+                    <h3 className="text-xl font-bold text-slate-900">Mindfulness Guidance</h3>
+                    <p className="text-xs text-slate-500">Your personalized wellness companion</p>
                 </div>
-                <button
-                    onClick={handleGenerate}
-                    disabled={generating || loading}
-                    className="btn-primary text-[10px] px-3 py-1.5 flex items-center gap-2"
-                >
-                    {generating ? '...' : <><Sparkles size={12} /> Generate</>}
-                </button>
             </div>
 
             {/* Daily Tip Section */}
             <motion.div
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
-                className="mb-8 p-6 bg-gradient-to-br from-indigo-500/20 to-purple-600/10 rounded-3xl border border-indigo-400/20 relative overflow-hidden group"
+                whileHover={{ scale: 1.02, boxShadow: '0 10px 30px rgba(6, 182, 212, 0.2)' }}
+                transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+                className="mb-8 p-6 bg-gradient-to-br from-cyan-500/20 to-teal-600/10 rounded-3xl border border-cyan-400/20 relative overflow-hidden group"
             >
-                <div className="absolute top-0 right-0 w-24 h-24 bg-indigo-400/10 rounded-full blur-2xl -z-10 group-hover:scale-150 transition-transform duration-1000"></div>
-                <p className="text-[10px] font-bold uppercase tracking-widest text-indigo-400 mb-2">Reflect & Breathe</p>
-                <p className="text-lg font-medium italic text-indigo-100/90 leading-relaxed">
+                <div className="absolute top-0 right-0 w-24 h-24 bg-cyan-400/20 rounded-full blur-2xl -z-10 group-hover:scale-150 transition-transform duration-1000"></div>
+                <p className="text-[10px] font-bold uppercase tracking-widest text-cyan-600 mb-2">{dynamicTip.title}</p>
+                <p className="text-lg font-medium italic text-slate-700 leading-relaxed">
                     "{dailyTip}"
                 </p>
+                {mindfulnessGuidance?.practice?.steps?.length > 0 && (
+                    <div className="mt-4 p-4 bg-white/60 rounded-2xl border border-slate-200">
+                        <p className="text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">
+                            {mindfulnessGuidance.practice.name || 'Try this'}
+                            {typeof mindfulnessGuidance.practice.durationMinutes === 'number' ? ` • ${mindfulnessGuidance.practice.durationMinutes} min` : ''}
+                        </p>
+                        <ul className="text-sm text-slate-700 space-y-1.5">
+                            {mindfulnessGuidance.practice.steps.slice(0, 5).map((step) => (
+                                <li key={step} className="leading-relaxed">- {step}</li>
+                            ))}
+                        </ul>
+                        {mindfulnessGuidance?.suggestion && (
+                            <p className="text-xs text-slate-500 mt-3 leading-relaxed">{mindfulnessGuidance.suggestion}</p>
+                        )}
+                    </div>
+                )}
             </motion.div>
 
-            {loading ? (
-                <div className="space-y-3">
-                    {[1, 2].map(i => (
-                        <motion.div
-                            key={i}
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            transition={{ delay: i * 0.1 }}
-                            className="h-24 bg-gradient-to-r from-indigo-500/10 via-purple-500/10 to-indigo-500/10 rounded-2xl animate-pulse border border-white/5"
-                        />
-                    ))}
-                </div>
-            ) : error ? (
-                <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    className="text-center py-10 px-4 bg-red-500/5 rounded-2xl border border-red-500/10"
-                >
-                    <p className="text-red-300 text-sm mb-4">{error}</p>
-                    <button
-                        onClick={fetchPlans}
-                        className="text-xs font-bold text-indigo-400 hover:text-indigo-300 uppercase tracking-widest px-4 py-2 bg-indigo-500/10 rounded-lg border border-indigo-500/20 transition-all"
+            <div className="mt-4 pt-4 border-t border-slate-200">
+                <p className="text-xs font-bold uppercase tracking-widest text-teal-600 mb-3">Fun Stress-Reducing Games & Activities</p>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                    <motion.a
+                        href="https://xhalr.com/" target="_blank" rel="noopener noreferrer"
+                        whileHover={{ scale: 1.03, boxShadow: '0 0 20px rgba(6, 182, 212, 0.2)' }}
+                        whileTap={{ scale: 0.97 }}
+                        className="block p-4 rounded-2xl bg-gradient-to-br from-cyan-50 to-teal-50/50 border border-cyan-200 text-left transition-all"
                     >
-                        Try Again
-                    </button>
-                </motion.div>
-            ) : plans.length === 0 ? (
-                <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    className="text-center py-12 px-4"
-                >
-                    <motion.div animate={{ y: [0, -10, 0] }} transition={{ duration: 3, repeat: Infinity }}>
-                        <BookOpen size={48} className="mx-auto text-purple-400/30 mb-4" />
-                    </motion.div>
-                    <p className="text-white/70 font-semibold mb-2">No plans yet</p>
-                    <p className="text-sm text-white/50 mb-6">Let our AI analyze your recent mood and create a plan.</p>
-                    <button
-                        onClick={handleGenerate}
-                        disabled={generating}
-                        className="btn-primary px-8 py-3 w-full max-w-xs mx-auto flex items-center justify-center gap-3 font-bold"
+                        <p className="text-sm font-semibold text-slate-800 mb-1">Breath Bubble</p>
+                        <p className="text-xs text-slate-600">
+                            Interactive visual breathing exercise to calm your mind and lower heart rate.
+                        </p>
+                    </motion.a>
+                    <motion.a
+                        href="http://weavesilk.com/" target="_blank" rel="noopener noreferrer"
+                        whileHover={{ scale: 1.03, boxShadow: '0 0 20px rgba(168, 85, 247, 0.2)' }}
+                        whileTap={{ scale: 0.97 }}
+                        className="block p-4 rounded-2xl bg-gradient-to-br from-purple-50 to-indigo-50/50 border border-purple-200 text-left transition-all"
                     >
-                        {generating ? (
-                            <>
-                                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                                Crafting Plan...
-                            </>
-                        ) : (
-                            <><Sparkles size={20} /> Generate Weekly Plan</>
-                        )}
-                    </button>
-                </motion.div>
-            ) : (
-                <div className="space-y-3 max-h-96 overflow-y-auto pr-2 custom-scrollbar">
-                    {plans.map((plan, idx) => (
-                        <motion.div
-                            key={plan._id}
-                            initial={{ opacity: 0, x: -20 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ delay: idx * 0.1 }}
-                            whileHover={{ x: 5 }}
-                            className="p-4 bg-gradient-to-br from-purple-500/10 to-indigo-500/5 rounded-2xl border border-purple-500/20 hover:border-purple-500/40 hover:bg-gradient-to-br hover:from-purple-500/15 hover:shadow-lg hover:shadow-purple-500/10 transition-all group cursor-pointer"
-                        >
-                            <div className="flex items-start gap-3">
-                                <motion.div
-                                    className="mt-1 p-2 bg-purple-500/20 rounded-lg"
-                                    whileHover={{ scale: 1.1 }}
-                                >
-                                    <Calendar size={18} className="text-purple-400" />
-                                </motion.div>
-                                <div className="flex-1 min-w-0">
-                                    <div className="flex items-center justify-between mb-2">
-                                        <span className="text-xs font-semibold text-purple-400 uppercase tracking-wider">Weekly Plan</span>
-                                        <span className="text-xs text-white/40 text-right">
-                                            {new Date(plan.weekStart).toLocaleDateString([], { month: 'short', day: 'numeric' })}
-                                        </span>
-                                    </div>
-                                    <p className="text-sm text-white/75 line-clamp-2 leading-relaxed">{plan.summary || 'Personalized mindfulness guidance'}</p>
-                                </div>
-                            </div>
-                        </motion.div>
-                    ))}
+                        <p className="text-sm font-semibold text-slate-800 mb-1">Weave Silk</p>
+                        <p className="text-xs text-slate-600">
+                            Create stunning, relaxing generative art with just a swipe of your finger.
+                        </p>
+                    </motion.a>
+                    <motion.a
+                        href="https://paveldogreat.github.io/WebGL-Fluid-Simulation/" target="_blank" rel="noopener noreferrer"
+                        whileHover={{ scale: 1.03, boxShadow: '0 0 20px rgba(16, 185, 129, 0.2)' }}
+                        whileTap={{ scale: 0.97 }}
+                        className="block p-4 rounded-2xl bg-gradient-to-br from-emerald-50 to-teal-50/50 border border-emerald-200 text-left transition-all"
+                    >
+                        <p className="text-sm font-semibold text-slate-800 mb-1">Fluid Simulation</p>
+                        <p className="text-xs text-slate-600">
+                            Play with beautiful, mesmerizing colorful fluid dynamics on your screen.
+                        </p>
+                    </motion.a>
+                    <motion.a
+                        href="https://asoftmurmur.com/" target="_blank" rel="noopener noreferrer"
+                        whileHover={{ scale: 1.03, boxShadow: '0 0 20px rgba(245, 158, 11, 0.2)' }}
+                        whileTap={{ scale: 0.97 }}
+                        className="block p-4 rounded-2xl bg-gradient-to-br from-amber-50 to-orange-50/50 border border-amber-200 text-left transition-all"
+                    >
+                        <p className="text-sm font-semibold text-slate-800 mb-1">A Soft Murmur</p>
+                        <p className="text-xs text-slate-600">
+                            Mix your own perfect ambient background noise to relax and focus your mind.
+                        </p>
+                    </motion.a>
+                    <motion.a
+                        href="https://color.method.ac/" target="_blank" rel="noopener noreferrer"
+                        whileHover={{ scale: 1.03, boxShadow: '0 0 20px rgba(236, 72, 153, 0.2)' }}
+                        whileTap={{ scale: 0.97 }}
+                        className="block p-4 rounded-2xl bg-gradient-to-br from-pink-50 to-rose-50/50 border border-pink-200 text-left transition-all"
+                    >
+                        <p className="text-sm font-semibold text-slate-800 mb-1">Color Match</p>
+                        <p className="text-xs text-slate-600">
+                            A highly satisfying and visually pleasing color matching game to ground your thoughts.
+                        </p>
+                    </motion.a>
+                    <motion.a
+                        href="https://slowroads.io/" target="_blank" rel="noopener noreferrer"
+                        whileHover={{ scale: 1.03, boxShadow: '0 0 20px rgba(59, 130, 246, 0.2)' }}
+                        whileTap={{ scale: 0.97 }}
+                        className="block p-4 rounded-2xl bg-gradient-to-br from-blue-50 to-sky-50/50 border border-blue-200 text-left transition-all"
+                    >
+                        <p className="text-sm font-semibold text-slate-800 mb-1">Slow Roads</p>
+                        <p className="text-xs text-slate-600">
+                            Endless, relaxing driving through procedurally generated picturesque landscapes.
+                        </p>
+                    </motion.a>
                 </div>
-            )}
+            </div>
         </motion.div>
     );
 };

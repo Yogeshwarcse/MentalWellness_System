@@ -42,9 +42,9 @@ const Breathing = () => {
     };
 
     const phaseColors = {
-        'Breathe In': { glow: 'rgba(99, 102, 241, 0.6)', bg: 'rgba(99, 102, 241, 0.15)', text: 'text-indigo-400', label: 'Inhale' },
-        'Hold': { glow: 'rgba(168, 85, 247, 0.6)', bg: 'rgba(168, 85, 247, 0.15)', text: 'text-purple-400', label: 'Hold' },
-        'Breathe Out': { glow: 'rgba(244, 63, 94, 0.6)', bg: 'rgba(244, 63, 94, 0.15)', text: 'text-red-400', label: 'Exhale' },
+        'Breathe In': { glow: 'rgba(6, 182, 212, 0.6)', bg: 'rgba(6, 182, 212, 0.15)', text: 'text-cyan-400', label: 'Inhale' },
+        'Hold': { glow: 'rgba(20, 184, 166, 0.6)', bg: 'rgba(20, 184, 166, 0.15)', text: 'text-teal-400', label: 'Hold' },
+        'Breathe Out': { glow: 'rgba(244, 63, 94, 0.6)', bg: 'rgba(244, 63, 94, 0.15)', text: 'text-rose-400', label: 'Exhale' },
     };
 
     const colors = phaseColors[phase];
@@ -59,12 +59,12 @@ const Breathing = () => {
             >
                 <motion.div className="flex items-center justify-center gap-3 mb-5">
                     <motion.div animate={{ rotate: [0, 10, -10, 0] }} transition={{ duration: 4, repeat: Infinity }}>
-                        <Wind className="text-indigo-400" size={40} />
+                        <Wind className="text-cyan-400" size={40} />
                     </motion.div>
                     <h1 className="text-6xl font-bold text-gradient">Guided Breathing</h1>
                 </motion.div>
-                <p className="text-xl text-white/80 mb-3 font-semibold">The 4-4-4 Box Breathing Technique</p>
-                <p className="text-white/60">Inhale for 4 seconds, hold for 4, exhale for 4 to calm your nervous system and reduce stress</p>
+                <p className="text-xl text-slate-700 mb-3 font-semibold">The 4-4-4 Box Breathing Technique</p>
+                <p className="text-slate-600">Inhale for 4 seconds, hold for 4, exhale for 4 to calm your nervous system and reduce stress</p>
             </motion.div>
 
             {/* Main Breathing Circle */}
@@ -123,7 +123,7 @@ const Breathing = () => {
                             key={counter}
                             animate={{ scale: [1, 1.3, 1] }}
                             transition={{ duration: 0.8 }}
-                            className="text-8xl font-black text-white block h-28 flex items-center justify-center"
+                            className="text-8xl font-black text-slate-800 block h-28 flex items-center justify-center -mt-6"
                         >
                             {counter}
                         </motion.span>
@@ -160,12 +160,12 @@ const Breathing = () => {
                     animate={{ opacity: 1, y: 0 }}
                     className="mb-16 text-center"
                 >
-                    <p className="text-white/70 mb-3 font-medium tracking-wide">Breathing Cycles Completed</p>
+                    <p className="text-slate-600 mb-3 font-semibold tracking-wide uppercase text-sm">Breathing Cycles Completed</p>
                     <motion.p
                         key={totalCycles}
                         initial={{ scale: 0.5 }}
                         animate={{ scale: 1 }}
-                        className="text-6xl font-black bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent"
+                        className="text-6xl font-black bg-gradient-to-r from-cyan-400 to-teal-400 bg-clip-text text-transparent"
                     >
                         {totalCycles}
                     </motion.p>
@@ -183,7 +183,7 @@ const Breathing = () => {
                     whileHover={{ scale: 1.08 }}
                     whileTap={{ scale: 0.95 }}
                     onClick={toggle}
-                    className="flex items-center gap-3 px-10 py-4 bg-gradient-to-r from-indigo-600 to-indigo-500 rounded-2xl font-bold hover:shadow-2xl hover:shadow-indigo-500/50 text-white transition-all text-lg"
+                    className="flex items-center gap-3 px-10 py-4 bg-gradient-to-r from-cyan-600 to-cyan-500 rounded-2xl font-bold hover:shadow-2xl hover:shadow-cyan-500/50 text-white transition-all text-lg"
                 >
                     {isActive ? (
                         <>
@@ -214,9 +214,9 @@ const Breathing = () => {
             >
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-10">
                     {[
-                        { time: '4s', phase: 'Inhale', desc: 'Breathe in deeply through your nose', icon: '🫁', color: 'from-indigo-600/30 to-indigo-600/10' },
-                        { time: '4s', phase: 'Hold', desc: 'Keep the breath in your lungs gently', icon: '⏸️', color: 'from-purple-600/30 to-purple-600/10' },
-                        { time: '4s', phase: 'Exhale', desc: 'Release the breath through your mouth', icon: '💨', color: 'from-red-600/30 to-red-600/10' },
+                        { time: '4s', phase: 'Inhale', desc: 'Breathe in deeply through your nose', icon: '🫁', color: 'from-cyan-600/30 to-cyan-600/10' },
+                        { time: '4s', phase: 'Hold', desc: 'Keep the breath in your lungs gently', icon: '⏸️', color: 'from-teal-600/30 to-teal-600/10' },
+                        { time: '4s', phase: 'Exhale', desc: 'Release the breath through your mouth', icon: '💨', color: 'from-rose-600/30 to-rose-600/10' },
                     ].map((item, idx) => (
                         <motion.div
                             key={idx}
@@ -230,10 +230,10 @@ const Breathing = () => {
                                     : 'border-white/10'
                             }`}
                         >
-                            <span className="text-5xl mb-3 block">{item.icon}</span>
-                            <span className="block text-2xl font-bold text-white mb-2">{item.time}</span>
-                            <span className="block text-lg font-semibold text-white/90 mb-2">{item.phase}</span>
-                            <span className="block text-sm text-white/70">{item.desc}</span>
+                            <span className="text-5xl mb-3 mt-4 block">{item.icon}</span>
+                            <span className="block text-2xl font-bold text-slate-800 mb-2">{item.time}</span>
+                            <span className="block text-lg font-semibold text-slate-700 mb-2">{item.phase}</span>
+                            <span className="block text-sm text-slate-600 mb-4">{item.desc}</span>
                         </motion.div>
                     ))}
                 </div>
@@ -243,30 +243,30 @@ const Breathing = () => {
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ delay: 0.8 }}
-                    className="bg-gradient-to-br from-indigo-600/20 to-purple-600/10 border-2 border-indigo-500/30 rounded-3xl p-8 shadow-lg"
+                    className="bg-gradient-to-br from-cyan-600/20 to-teal-600/10 border-2 border-cyan-500/30 rounded-3xl p-8 shadow-lg"
                 >
                     <div className="flex items-start gap-4">
                         <motion.div
                             animate={{ rotate: [0, 5, -5, 0] }}
                             transition={{ duration: 3, repeat: Infinity }}
-                            className="p-2 bg-indigo-500/20 rounded-xl"
+                            className="p-2 bg-cyan-500/20 rounded-xl"
                         >
-                            <Info className="text-indigo-400" size={24} />
+                            <Info className="text-cyan-400" size={24} />
                         </motion.div>
                         <div>
-                            <p className="font-bold text-white mb-3 text-lg">Pro Tips for Better Results</p>
-                            <ul className="text-white/80 space-y-2">
+                            <p className="font-bold text-slate-800 mb-3 text-lg">Pro Tips for Better Results</p>
+                            <ul className="text-slate-700 space-y-2 font-medium">
                                 <li className="flex items-center gap-2">
-                                    <span className="text-indigo-400 font-bold">•</span> Find a quiet, comfortable space to practice
+                                    <span className="text-cyan-600 font-bold">•</span> Find a quiet, comfortable space to practice
                                 </li>
                                 <li className="flex items-center gap-2">
-                                    <span className="text-purple-400 font-bold">•</span> Start with 2-3 cycles, gradually increase to 5-10
+                                    <span className="text-teal-600 font-bold">•</span> Start with 2-3 cycles, gradually increase to 5-10
                                 </li>
                                 <li className="flex items-center gap-2">
-                                    <span className="text-red-400 font-bold">•</span> Keep your posture upright but relaxed for best oxygen flow
+                                    <span className="text-rose-600 font-bold">•</span> Keep your posture upright but relaxed for best oxygen flow
                                 </li>
                                 <li className="flex items-center gap-2">
-                                    <span className="text-indigo-400 font-bold">•</span> Practice daily for maximum stress relief benefits
+                                    <span className="text-cyan-600 font-bold">•</span> Practice daily for maximum stress relief benefits
                                 </li>
                             </ul>
                         </div>

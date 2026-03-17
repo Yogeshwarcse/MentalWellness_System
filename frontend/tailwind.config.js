@@ -7,21 +7,21 @@ export default {
     theme: {
         extend: {
             colors: {
-                primary: "#6366f1",
-                primaryLight: "#818cf8",
-                primaryDark: "#4f46e5",
-                secondary: "#a855f7",
-                secondaryLight: "#c084fc",
-                secondaryDark: "#9333ea",
-                accent: "#f43f5e",
-                accentLight: "#ff6b7a",
+                primary: "#06b6d4", // Cyan-500
+                primaryLight: "#22d3ee", // Cyan-400
+                primaryDark: "#0891b2", // Cyan-600
+                secondary: "#14b8a6", // Teal-500
+                secondaryLight: "#2dd4bf", // Teal-400
+                secondaryDark: "#0f766e", // Teal-700
+                accent: "#f43f5e", // Rose-500
+                accentLight: "#fb7185", // Rose-400
                 accentDark: "#e11c4a",
-                background: "#0f172a",
-                backgroundDark: "#0a0f1f",
-                backgroundLight: "#1a254f",
-                card: "#1e293b",
-                cardLight: "#334155",
-                cardDark: "#0f172a",
+                background: "#f8fafc", // Slate-50
+                backgroundDark: "#e2e8f0", // Slate-200
+                backgroundLight: "#ffffff",
+                card: "#ffffff",
+                cardLight: "#f8fafc",
+                cardDark: "#f1f5f9",
                 success: "#10b981",
                 warning: "#f59e0b",
                 error: "#ef4444",
@@ -63,6 +63,10 @@ export default {
                     '0%, 100%': { transform: 'translateY(0px)' },
                     '50%': { transform: 'translateY(-10px)' },
                 },
+                'float-slow': {
+                    '0%, 100%': { transform: 'translateY(0px)' },
+                    '50%': { transform: 'translateY(-20px)' },
+                },
                 'pulse-slow': {
                     '0%, 100%': { opacity: '1' },
                     '50%': { opacity: '.5' },
@@ -71,11 +75,38 @@ export default {
                     '0%': { backgroundPosition: '-1000px 0' },
                     '100%': { backgroundPosition: '1000px 0' },
                 },
+                'aurora': {
+                    from: { backgroundPosition: '50% 50%, 50% 50%' },
+                    to: { backgroundPosition: '350% 50%, 350% 50%' },
+                },
+                'emoji-float': {
+                    '0%': { transform: 'translateY(0) scale(0.5) rotate(-10deg)', opacity: '0' },
+                    '20%': { transform: 'translateY(-20px) scale(1.2) rotate(10deg)', opacity: '1' },
+                    '50%': { transform: 'translateY(-50px) scale(1) rotate(-5deg)', opacity: '0.8' },
+                    '100%': { transform: 'translateY(-120px) scale(0.8) rotate(15deg)', opacity: '0' },
+                },
+                'emoji-pop': {
+                    '0%': { transform: 'scale(0.5)', opacity: '0' },
+                    '50%': { transform: 'scale(1.5)', opacity: '1' },
+                    '100%': { transform: 'scale(1)', opacity: '1' },
+                },
+                'emoji-pop-center': {
+                    '0%': { transform: 'scale(0) rotate(-15deg)', opacity: '0' },
+                    '20%': { transform: 'scale(1.4) rotate(10deg)', opacity: '1' },
+                    '40%': { transform: 'scale(1) rotate(-5deg)', opacity: '1' },
+                    '80%': { transform: 'scale(1) rotate(0deg)', opacity: '1' },
+                    '100%': { transform: 'scale(1.2)', opacity: '0' },
+                }
             },
             animation: {
                 'float': 'float 3s ease-in-out infinite',
+                'float-slow': 'float-slow 6s ease-in-out infinite',
                 'pulse-slow': 'pulse-slow 3s ease-in-out infinite',
                 'shimmer': 'shimmer 2s infinite',
+                'aurora': 'aurora 60s linear infinite',
+                'emoji-float': 'emoji-float 3s ease-out forwards',
+                'emoji-pop': 'emoji-pop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards',
+                'emoji-pop-center': 'emoji-pop-center 4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards',
             },
         },
     },

@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { authService } from '../services/api';
 import { User, Mail, Lock, UserPlus, AlertCircle, ArrowRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import AnimatedBackground from '../components/AnimatedBackground';
 
 const Register = ({ setUser }) => {
     const [formData, setFormData] = useState({ name: '', email: '', password: '' });
@@ -43,6 +44,17 @@ const Register = ({ setUser }) => {
         }
     };
 
+    const containerVariants = {
+        hidden: { opacity: 0 },
+        visible: {
+            opacity: 1,
+            transition: {
+                staggerChildren: 0.1,
+                delayChildren: 0.1,
+            },
+        },
+    };
+
     const itemVariants = {
         hidden: { opacity: 0, y: 20 },
         visible: {
@@ -54,15 +66,13 @@ const Register = ({ setUser }) => {
 
     return (
         <div className="min-h-screen flex items-center justify-center px-4 py-12 relative overflow-hidden">
-            {/* Animated background elements */}
-            <div className="absolute top-0 right-0 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl -z-10 animate-float"></div>
-            <div className="absolute bottom-0 left-0 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl -z-10"></div>
+            <AnimatedBackground />
 
             <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6 }}
-                className="w-full max-w-md"
+                className="w-full max-w-md z-10 perspective-1000"
             >
                 {/* Welcome Section */}
                 <motion.div variants={itemVariants} initial="hidden" animate="visible" className="text-center mb-8">
@@ -92,71 +102,59 @@ const Register = ({ setUser }) => {
                         )}
                     </AnimatePresence>
 
-                    <form onSubmit={handleSubmit} className="space-y-5">
+                    <motion.form variants={containerVariants} initial="hidden" animate="visible" onSubmit={handleSubmit} className="space-y-5">
                         {/* Name Input */}
-                        <motion.div
-                            initial={{ opacity: 0, x: -20 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ delay: 0.2 }}
-                            className="space-y-3"
-                        >
+                        <motion.div variants={itemVariants} className="space-y-3">
                             <label className="text-sm font-semibold text-white/90 block">Full Name</label>
                             <div className="relative group">
-                                <User className="absolute left-4 top-1/2 -translate-y-1/2 text-indigo-400/50 group-focus-within:text-indigo-400 transition-colors" size={20} />
+                                <User className="absolute left-4 top-1/2 -translate-y-1/2 text-cyan-400/50 group-focus-within:text-cyan-400 transition-colors" size={20} />
                                 <input
                                     type="text"
                                     required
-                                    className="input-base pl-12 group-focus-within:input-focus"
+                                    className="input-base pl-12 group-focus-within:input-focus transition-all duration-300 shadow-inner"
                                     placeholder="John Calm"
                                     value={formData.name}
                                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                                     autoComplete="name"
                                 />
+                                <div className="absolute inset-0 border rounded-2xl border-cyan-400/0 group-focus-within:border-cyan-400/50 pointer-events-none transition-all duration-500 scale-105 group-focus-within:scale-100"></div>
                             </div>
                         </motion.div>
 
                         {/* Email Input */}
-                        <motion.div
-                            initial={{ opacity: 0, x: -20 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ delay: 0.3 }}
-                            className="space-y-3"
-                        >
+                        <motion.div variants={itemVariants} className="space-y-3">
                             <label className="text-sm font-semibold text-white/90 block">Email Address</label>
                             <div className="relative group">
-                                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-indigo-400/50 group-focus-within:text-indigo-400 transition-colors" size={20} />
+                                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-cyan-400/50 group-focus-within:text-cyan-400 transition-colors" size={20} />
                                 <input
                                     type="email"
                                     required
-                                    className="input-base pl-12 group-focus-within:input-focus"
+                                    className="input-base pl-12 group-focus-within:input-focus transition-all duration-300 shadow-inner"
                                     placeholder="name@example.com"
                                     value={formData.email}
                                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                                     autoComplete="email"
                                 />
+                                <div className="absolute inset-0 border rounded-2xl border-cyan-400/0 group-focus-within:border-cyan-400/50 pointer-events-none transition-all duration-500 scale-105 group-focus-within:scale-100"></div>
                             </div>
                         </motion.div>
 
                         {/* Password Input */}
-                        <motion.div
-                            initial={{ opacity: 0, x: -20 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ delay: 0.4 }}
-                            className="space-y-3"
-                        >
+                        <motion.div variants={itemVariants} className="space-y-3">
                             <label className="text-sm font-semibold text-white/90 block">Password</label>
                             <div className="relative group">
-                                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-indigo-400/50 group-focus-within:text-indigo-400 transition-colors" size={20} />
+                                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-cyan-400/50 group-focus-within:text-cyan-400 transition-colors" size={20} />
                                 <input
                                     type="password"
                                     required
                                     minLength="6"
-                                    className="input-base pl-12 group-focus-within:input-focus"
+                                    className="input-base pl-12 group-focus-within:input-focus transition-all duration-300 shadow-inner"
                                     placeholder="••••••••"
                                     value={formData.password}
                                     onChange={handlePasswordChange}
                                     autoComplete="new-password"
                                 />
+                                <div className="absolute inset-0 border rounded-2xl border-cyan-400/0 group-focus-within:border-cyan-400/50 pointer-events-none transition-all duration-500 scale-105 group-focus-within:scale-100"></div>
                             </div>
 
                             {/* Strength Meter */}
@@ -183,10 +181,8 @@ const Register = ({ setUser }) => {
 
                         {/* Submit Button */}
                         <motion.button
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            transition={{ delay: 0.5 }}
-                            whileHover={{ scale: 1.02 }}
+                            variants={itemVariants}
+                            whileHover={{ scale: 1.02, boxShadow: '0 0 20px rgba(6, 182, 212, 0.5)' }}
                             whileTap={{ scale: 0.98 }}
                             type="submit"
                             disabled={loading}
@@ -203,7 +199,7 @@ const Register = ({ setUser }) => {
                                 </>
                             )}
                         </motion.button>
-                    </form>
+                    </motion.form>
 
                     {/* Divider */}
                     <div className="relative my-6">
@@ -221,7 +217,7 @@ const Register = ({ setUser }) => {
                         animate={{ opacity: 1 }}
                         transition={{ delay: 0.6 }}
                     >
-                        <Link to="/login" className="block text-center px-4 py-3 bg-gradient-to-r from-indigo-600/30 to-purple-600/30 hover:from-indigo-600/50 hover:to-purple-600/50 rounded-2xl border border-indigo-400/20 hover:border-indigo-400/40 text-indigo-300 font-semibold transition-all group flex items-center justify-center gap-2">
+                        <Link to="/login" className="block text-center px-4 py-3 bg-gradient-to-r from-cyan-600/30 to-teal-600/30 hover:from-cyan-600/50 hover:to-teal-600/50 rounded-2xl border border-cyan-400/20 hover:border-cyan-400/40 text-cyan-300 font-semibold transition-all group flex items-center justify-center gap-2">
                             Sign In Instead <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
                         </Link>
                     </motion.div>

@@ -41,7 +41,7 @@ const CrisisModal = ({ open, onClose, helpline = '988', actions = [] }) => {
                             </motion.div>
                             <div className="flex-1">
                                 <h3 className="text-3xl font-bold text-red-400 mb-2">Emergency Support Needed</h3>
-                                <p className="text-white/80 text-sm leading-relaxed">
+                                <p className="text-slate-600 text-sm leading-relaxed">
                                     Our system detected elevated stress levels. Help is immediately available.
                                 </p>
                             </div>
@@ -66,28 +66,28 @@ const CrisisModal = ({ open, onClose, helpline = '988', actions = [] }) => {
                         </div>
 
                         {/* Emergency Warning */}
-                        <div className="mb-8 p-5 bg-red-500/10 border-2 border-red-500/30 rounded-2xl">
-                            <p className="text-white/90 text-sm font-semibold">
+                        <div className="mb-8 p-5 bg-red-50 border-2 border-red-200 rounded-2xl">
+                            <p className="text-red-800 text-sm font-semibold">
                                 🚨 If you're in immediate physical danger, call 911 or your local emergency number
                             </p>
                         </div>
 
                         {/* Support Resources */}
                         <div className="mb-8">
-                            <p className="text-white/80 text-sm font-semibold mb-4">Available Support</p>
+                            <p className="text-slate-600 text-sm font-semibold mb-4">Available Support</p>
                             <div className="space-y-3">
-                                <div className="flex items-start gap-3 p-3 bg-white/5 rounded-xl border border-white/10">
-                                    <Heart size={18} className="text-red-400 mt-0.5 flex-shrink-0" />
+                                <div className="flex items-start gap-3 p-3 bg-slate-50 rounded-xl border border-slate-200">
+                                    <Heart size={18} className="text-red-500 mt-0.5 flex-shrink-0" />
                                     <div>
-                                        <p className="text-white/90 font-medium text-sm">Crisis Counseling</p>
-                                        <p className="text-white/60 text-xs">Free, confidential support anytime</p>
+                                        <p className="text-slate-800 font-medium text-sm">Crisis Counseling</p>
+                                        <p className="text-slate-500 text-xs">Free, confidential support anytime</p>
                                     </div>
                                 </div>
-                                <div className="flex items-start gap-3 p-3 bg-white/5 rounded-xl border border-white/10">
-                                    <AlertTriangle size={18} className="text-yellow-400 mt-0.5 flex-shrink-0" />
+                                <div className="flex items-start gap-3 p-3 bg-slate-50 rounded-xl border border-slate-200">
+                                    <AlertTriangle size={18} className="text-yellow-600 mt-0.5 flex-shrink-0" />
                                     <div>
-                                        <p className="text-white/90 font-medium text-sm">Immediate Assessment</p>
-                                        <p className="text-white/60 text-xs">Professional guidance right now</p>
+                                        <p className="text-slate-800 font-medium text-sm">Immediate Assessment</p>
+                                        <p className="text-slate-500 text-xs">Professional guidance right now</p>
                                     </div>
                                 </div>
                             </div>
@@ -96,7 +96,7 @@ const CrisisModal = ({ open, onClose, helpline = '988', actions = [] }) => {
                         {/* Recommended Actions */}
                         {actions && actions.length > 0 && (
                             <div className="mb-8">
-                                <p className="text-white/80 text-sm font-semibold mb-3">Helpful Actions</p>
+                                <p className="text-slate-600 text-sm font-semibold mb-3">Helpful Actions</p>
                                 <div className="grid grid-cols-2 gap-2">
                                     {actions.map((action, idx) => (
                                         <motion.button
@@ -105,7 +105,7 @@ const CrisisModal = ({ open, onClose, helpline = '988', actions = [] }) => {
                                             animate={{ opacity: 1, y: 0 }}
                                             transition={{ delay: idx * 0.1 }}
                                             whileHover={{ scale: 1.05 }}
-                                            className="px-4 py-3 bg-indigo-500/20 hover:bg-indigo-500/40 border border-indigo-400/30 rounded-xl text-sm font-medium transition-all text-indigo-300 capitalize text-center"
+                                            className="px-4 py-3 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 rounded-xl text-sm font-medium transition-all text-indigo-700 capitalize text-center"
                                         >
                                             {action.replace(/_/g, ' ')}
                                         </motion.button>
@@ -120,7 +120,7 @@ const CrisisModal = ({ open, onClose, helpline = '988', actions = [] }) => {
                                 whileHover={{ scale: 1.05 }}
                                 whileTap={{ scale: 0.95 }}
                                 onClick={onClose}
-                                className="flex-1 px-4 py-3 bg-white/10 hover:bg-white/20 border border-white/10 rounded-2xl font-semibold transition-all"
+                                className="flex-1 px-4 py-3 bg-slate-100 hover:bg-slate-200 border border-slate-300 rounded-2xl font-semibold transition-all text-slate-800"
                             >
                                 I'm Safe
                             </motion.button>
