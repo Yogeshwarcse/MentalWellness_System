@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
+const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api').replace(/\/$/, '') + '/';
 
 const api = axios.create({
     baseURL: API_BASE_URL,
@@ -27,36 +27,36 @@ api.interceptors.response.use(
 );
 
 export const authService = {
-    login: (credentials) => api.post('/auth/login', credentials),
-    register: (userData) => api.post('/auth/register', userData),
+    login: (credentials) => api.post('auth/login', credentials),
+    register: (userData) => api.post('auth/register', userData),
 };
 
 export const wellnessService = {
     processVoice: (audioBlob) => {
         const formData = new FormData();
         formData.append('audio', audioBlob, 'voice.wav');
-        return api.post('/wellness/process-voice', formData, {
+        return api.post('wellness/process-voice', formData, {
             headers: { 'Content-Type': 'multipart/form-data' },
         });
     },
-    getHistory: () => api.get('/wellness/history'),
+    getHistory: () => api.get('wellness/history'),
 };
 
 export const crisisService = {
-    evaluate: (formData) => api.post('/crisis/evaluate', formData, { headers: { 'Content-Type': 'multipart/form-data' } }),
+    evaluate: (formData) => api.post('crisis/evaluate', formData, { headers: { 'Content-Type': 'multipart/form-data' } }),
 };
 
 export const aiService = {
-    respond: (payload) => api.post('/ai/respond', payload),
+    respond: (payload) => api.post('ai/respond', payload),
 };
 
 export const wearableService = {
-    postHeartRate: (data) => api.post('/wearable/heart-rate', data),
+    postHeartRate: (data) => api.post('wearable/heart-rate', data),
 };
 
 export const mindfulnessService = {
-    generate: () => api.post('/mindfulness/generate'),
-    getPlans: () => api.get('/mindfulness')
+    generate: () => api.post('mindfulness/generate'),
+    getPlans: () => api.get('mindfulness')
 };
 
 export default api;
