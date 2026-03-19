@@ -1,12 +1,14 @@
 fastapi
 uvicorn
 librosa
-numpy<2.0.0
+numpy==1.23.5
 pandas
 scikit-learn
-tensorflow==2.15.0
+tensorflow-cpu==2.15.0
 python-multipart
 python-dotenv
 aiofiles
 pydantic
 gunicorn
+# Optional light alternative if memory persists:
+# scikit-learn

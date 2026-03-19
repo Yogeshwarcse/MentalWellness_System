@@ -3,7 +3,6 @@ import uvicorn
 import numpy as np
 from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-import shutil
 
 # Optional heavy imports — handle missing packages gracefully so the service
 # can run in mock mode when dependencies like tensorflow or librosa are
@@ -170,7 +169,11 @@ async def predict_emotion(file: UploadFile = File(...)):
         
         # AI Processing
         try:
-            from utils import extract_features
+            # Try both relative and absolute import for different IDE systems
+            try:
+                from utils import extract_features
+            except ImportError:
+                from .utils import extract_features
             # librosa.load is heavy, wrap in nested try
             data, sr = librosa.load(temp_path, duration=2.5, offset=0.6)
             features = extract_features(data, sr)
