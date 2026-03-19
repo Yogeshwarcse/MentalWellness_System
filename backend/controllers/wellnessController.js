@@ -96,14 +96,18 @@ const processVoice = async (req, res) => {
         const formData = new FormData();
         formData.append('file', fs.createReadStream(audioPath));
 
-        let emotionData;
         try {
-            const aiResponse = await axios.post(`${AI_SERVICE_BASE_URL}/predict-emotion`, formData, {
-                headers: { ...formData.getHeaders() }
+            console.log(`Calling AI Service at: ${AI_SERVICE_BASE_URL}/predict`);
+            const aiResponse = await axios.post(`${AI_SERVICE_BASE_URL}/predict`, formData, {
+                headers: { ...formData.getHeaders() },
+                timeout: 10000 // 10 second timeout
             });
             emotionData = aiResponse.data;
+            console.log('AI Service Success:', JSON.stringify(emotionData));
         } catch (error) {
-            console.error('AI Service Error:', error.message);
+            console.error('AI Service Error Status:', error.response?.status);
+            console.error('AI Service Error Data:', JSON.stringify(error.response?.data));
+            console.error('AI Service Error Message:', error.message);
             // Fallback for demo purposes if AI service is down
             emotionData = { emotion: 'neutral', confidence: 0.5, mode: 'fallback' };
         }

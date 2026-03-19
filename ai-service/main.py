@@ -18,6 +18,8 @@ try:
 except Exception:
     librosa = None
 
+import random
+
 app = FastAPI(title="Mental Wellness AI Emotion Detection")
 
 # Enable CORS
@@ -135,42 +137,93 @@ def extract_audio_features_file(path: str) -> dict:
             'spec_contrast': random.uniform(5, 30)
         }
 
+@app.post("/predict")
 @app.post("/predict-emotion")
 async def predict_emotion(file: UploadFile = File(...)):
-    # Save uploaded file temporarily
-    temp_path = f"temp_{file.filename}"
-    with open(temp_path, "wb") as buffer:
-        shutil.copyfileobj(file.file, buffer)
+    # Standardize filename to avoid errors with random/None
+    original_filename = file.filename or "audio.wav"
+    temp_path = f"temp_{random.randint(1000, 9999)}_{original_filename}"
+    print(f"Received prediction request for: {original_filename}")
     
     try:
+        # Save uploaded file
+        content = await file.read()
+        if not content:
+            raise ValueError("Empty file received")
+            
+        with open(temp_path, "wb") as buffer:
+            buffer.write(content)
+        
         # If the model isn't loaded or required audio libraries aren't
         # available, return a mock prediction so the service remains usable.
         if model is None or librosa is None:
-            import random
+            print(f"MOCK MODE: Model loaded={model is not None}, Librosa loaded={librosa is not None}")
             temp_features = extract_audio_features_file(temp_path)
             stressScore = compute_stress_score(temp_features)
-            return {"emotion": random.choice(EMOTIONS), "confidence": 0.85, "mode": "mock", "stressScore": stressScore, "audioFeatures": temp_features}
-        # Load audio and extract features
-        from utils import extract_features
-        data, sr = librosa.load(temp_path, duration=2.5, offset=0.6)
-        features = extract_features(data, sr)
-        # Compute additional audio feature summary for stress scoring
-        audio_summary = extract_audio_features_file(temp_path)
-        stressScore = compute_stress_score(audio_summary)
+            return {
+                "emotion": random.choice(EMOTIONS), 
+                "confidence": 0.85, 
+                "mode": "mock", 
+                "stressScore": stressScore, 
+                "audioFeatures": temp_features,
+            }
         
-        # Predict
-        predictions = model.predict(features)
-        index = np.argmax(predictions)
-        emotion = EMOTIONS[index]
-        confidence = float(predictions[0][index])
+        # AI Processing
+        try:
+            from utils import extract_features
+            # librosa.load is heavy, wrap in nested try
+            data, sr = librosa.load(temp_path, duration=2.5, offset=0.6)
+            features = extract_features(data, sr)
+            
+            # Reshape for model [1, N, 1]
+            features_input = np.expand_dims(features, axis=0)
+            if len(features_input.shape) == 2:
+                features_input = np.expand_dims(features_input, axis=2)
+
+            audio_summary = extract_audio_features_file(temp_path)
+            stressScore = compute_stress_score(audio_summary)
+            
+            predictions = model.predict(features_input, verbose=0)
+            
+            # Robust prediction parsing
+            if len(predictions.shape) > 1:
+                idx = np.argmax(predictions[0])
+                conf = float(predictions[0][idx])
+            else:
+                idx = np.argmax(predictions)
+                conf = float(predictions[idx])
+                
+            emotion = EMOTIONS[idx] if idx < len(EMOTIONS) else "neutral"
+            
+            return {
+                "emotion": emotion, 
+                "confidence": conf, 
+                "mode": "ai", 
+                "stressScore": stressScore, 
+                "audioFeatures": audio_summary
+            }
+        except Exception as ai_err:
+            print(f"AI Logic Error: {ai_err}")
+            audio_summary = extract_audio_features_file(temp_path)
+            stressScore = compute_stress_score(audio_summary)
+            return {
+                "emotion": random.choice(EMOTIONS), 
+                "confidence": 0.7, 
+                "mode": "mock_fallback", 
+                "stressScore": stressScore,
+                "ai_error": str(ai_err)
+            }
         
-        return {"emotion": emotion, "confidence": confidence, "mode": "ai", "stressScore": stressScore, "audioFeatures": audio_summary}
-        
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+    except Exception as server_err:
+        print(f"CRITICAL API ERROR: {server_err}")
+        raise HTTPException(status_code=500, detail=str(server_err))
     finally:
+        # Cleanup temp file safely
         if os.path.exists(temp_path):
-            os.remove(temp_path)
+            try:
+                os.remove(temp_path)
+            except Exception as cleanup_err:
+                print(f"Cleanup Error for {temp_path}: {cleanup_err}")
 
 @app.get("/health")
 async def health_check():
