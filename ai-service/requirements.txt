@@ -1,7 +1,7 @@
 fastapi
 uvicorn
 librosa
-numpy
+numpy<2.0.0
 pandas
 scikit-learn
 tensorflow==2.15.0
