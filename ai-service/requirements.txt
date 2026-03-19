@@ -4,8 +4,9 @@ librosa
 numpy
 pandas
 scikit-learn
-tensorflow
+tensorflow==2.15.0
 python-multipart
 python-dotenv
 aiofiles
 pydantic
+gunicorn
