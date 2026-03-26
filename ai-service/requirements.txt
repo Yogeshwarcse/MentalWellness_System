@@ -4,7 +4,7 @@ librosa
 numpy==1.23.5
 pandas
 scikit-learn
-tensorflow-cpu==2.15.0
+tflite-runtime
 python-multipart
 python-dotenv
 aiofiles

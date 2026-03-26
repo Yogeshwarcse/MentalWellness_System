@@ -10,10 +10,19 @@ from utils import extract_features
 # Optional heavy imports — handle missing packages gracefully so the service
 # can run in mock mode when dependencies like tensorflow or librosa are
 # not installed in the environment.
+# Try to load tflite_runtime first (best for Render memory limits)
 try:
-    import tensorflow as tf
-except Exception:
-    tf = None
+    import tflite_runtime.interpreter as tflite
+    USE_TFLITE = True
+except ImportError:
+    # Fallback to full tensorflow if tflite_runtime isn't installed
+    try:
+        import tensorflow as tf
+        USE_TFLITE = False
+    except ImportError:
+        tf = None
+        tflite = None
+        USE_TFLITE = False
 
 try:
     import librosa
@@ -22,27 +31,40 @@ except Exception:
 
 import random
 
-# Load pre-trained model (assuming it exists or will be trained)
+# Load pre-trained model
 MODEL_PATH = "emotion_model.h5"
+TFLITE_MODEL_PATH = "emotion_model.tflite"
+
 model = None
+tflite_interpreter = None
+tflite_input_details = None
+tflite_output_details = None
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Startup logic
-    global model
-    if tf is not None:
-        if os.path.exists(MODEL_PATH):
-            try:
-                model = tf.keras.models.load_model(MODEL_PATH)
-                print("Model loaded successfully.")
-            except Exception as e:
-                print(f"Error loading model: {e}")
-                print("System will run in MOCK mode for now.")
-        else:
-            print("Model file not found. System will run in MOCK mode for now.")
-    else:
-        print("TensorFlow not available — running in MOCK mode.")
+    global model, tflite_interpreter, tflite_input_details, tflite_output_details
     
+    if USE_TFLITE and os.path.exists(TFLITE_MODEL_PATH):
+        try:
+            tflite_interpreter = tflite.Interpreter(model_path=TFLITE_MODEL_PATH)
+            tflite_interpreter.allocate_tensors()
+            tflite_input_details = tflite_interpreter.get_input_details()
+            tflite_output_details = tflite_interpreter.get_output_details()
+            print("TFLite model loaded successfully! (Memory optimized)")
+        except Exception as e:
+            print(f"Error loading TFLite model: {e}")
+            print("System will run in MOCK mode for now.")
+    elif not USE_TFLITE and tf is not None and os.path.exists(MODEL_PATH):
+        try:
+            model = tf.keras.models.load_model(MODEL_PATH)
+            print("TensorFlow model loaded successfully.")
+        except Exception as e:
+            print(f"Error loading TensorFlow model: {e}")
+            print("System will run in MOCK mode for now.")
+    else:
+        print("Suitable model or library not found. System will run in MOCK mode.")
+        
     yield
     # Shutdown logic (if any)
     print("Shutting down AI service...")
@@ -153,10 +175,10 @@ async def predict_emotion(file: UploadFile = File(...)):
             buffer.write(content)
         print(f"[{datetime.now().strftime('%H:%M:%S')}] File saved to disk: {temp_path}")
         
-        # If the model isn't loaded or required audio libraries aren't
+        # If neither model is loaded or required audio libraries aren't
         # available, return a mock prediction so the service remains usable.
-        if model is None or librosa is None:
-            print(f"[{datetime.now().strftime('%H:%M:%S')}] MOCK MODE: Model loaded={model is not None}, Librosa loaded={librosa is not None}")
+        if (model is None and tflite_interpreter is None) or librosa is None:
+            print(f"[{datetime.now().strftime('%H:%M:%S')}] MOCK MODE: Models loaded={model is not None or tflite_interpreter is not None}, Librosa loaded={librosa is not None}")
             temp_features = extract_audio_features_file(temp_path)
             print(f"[{datetime.now().strftime('%H:%M:%S')}] Mock features extracted")
             stressScore = compute_stress_score(temp_features)
@@ -182,7 +204,13 @@ async def predict_emotion(file: UploadFile = File(...)):
             audio_summary = extract_audio_features_file(temp_path)
             stressScore = compute_stress_score(audio_summary)
             
-            if model is not None:
+            if tflite_interpreter is not None:
+                # Cast to FLOAT32 for TFLite
+                features_input = features_input.astype(np.float32)
+                tflite_interpreter.set_tensor(tflite_input_details[0]['index'], features_input)
+                tflite_interpreter.invoke()
+                predictions = tflite_interpreter.get_tensor(tflite_output_details[0]['index'])
+            elif model is not None:
                 predictions = model.predict(features_input, verbose=0)
             else:
                 raise ValueError("Model is not initialized")
