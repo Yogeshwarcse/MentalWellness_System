@@ -65,4 +65,8 @@ export const mindfulnessService = {
     getPlans: () => api.get('mindfulness')
 };
 
+export const feedbackService = {
+    submit: (data) => api.post('feedback', data)
+};
+
 export default api;

@@ -9,6 +9,7 @@ const crisisRoutes = require('./routes/crisisRoutes');
 const aiRoutes = require('./routes/aiRoutes');
 const wearableRoutes = require('./routes/wearableRoutes');
 const mindfulnessRoutes = require('./routes/mindfulnessRoutes');
+const feedbackRoutes = require('./routes/feedbackRoutes');
 
 const app = express();
 
@@ -34,6 +35,7 @@ app.use('/api/crisis', crisisRoutes);
 app.use('/api/ai', aiRoutes);
 app.use('/api/wearable', wearableRoutes);
 app.use('/api/mindfulness', mindfulnessRoutes);
+app.use('/api/feedback', feedbackRoutes);
 
 app.get('/', (req, res) => {
     res.send('Mental Wellness API is running...');

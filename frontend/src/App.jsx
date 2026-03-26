@@ -5,6 +5,7 @@ import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import Breathing from './pages/Breathing';
 import Navbar from './components/Navbar';
+import CustomCursor from './components/CustomCursor';
 
 function App() {
     const [user, setUser] = useState(null);
@@ -30,6 +31,7 @@ function App() {
 
     return (
         <Router>
+            <CustomCursor />
             <div className="min-h-screen relative overflow-x-hidden text-slate-900 font-sans">
                 <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top_left,#e0f2fe,transparent_60%),radial-gradient(circle_at_bottom_right,#fce7f3,transparent_60%),radial-gradient(circle_at_top_right,#dcfce3,transparent_60%)]" />
                 <div className="pointer-events-none absolute -top-32 -left-24 w-80 h-80 bg-cyan-400/20 rounded-full blur-3xl animate-pulse-slow" />

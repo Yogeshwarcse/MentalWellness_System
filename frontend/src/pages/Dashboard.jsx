@@ -4,6 +4,7 @@ import { wellnessService } from '../services/api';
 import StressMeter from '../components/StressMeter';
 import CrisisModal from '../components/CrisisModal';
 import MindfulnessDashboard from '../components/MindfulnessDashboard';
+import FeedbackModal from '../components/FeedbackModal';
 import { AreaChart, Area, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, ReferenceLine } from 'recharts';
 import { Mic, MicOff, MessageCircle, TrendingUp, History, Info, Wind } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -67,6 +68,7 @@ const Dashboard = () => {
     const [crisisOpen, setCrisisOpen] = useState(false);
     const [popupEmoji, setPopupEmoji] = useState(null);
     const [popupMessage, setPopupMessage] = useState(null);
+    const [feedbackOpen, setFeedbackOpen] = useState(false);
 
     const fetchHistory = async () => {
         try {
@@ -434,6 +436,7 @@ const Dashboard = () => {
                 </motion.div>
 
                 <CrisisModal open={crisisOpen || (lastDetection && lastDetection.crisis)} onClose={() => setCrisisOpen(false)} helpline={(lastDetection && lastDetection.helpline) || '988'} actions={(lastDetection && lastDetection.actions || lastDetection && lastDetection.actionPlan) || []} />
+                <FeedbackModal open={feedbackOpen} onClose={() => setFeedbackOpen(false)} />
 
                 <motion.div
                     initial={{ opacity: 0, x: 20 }}
@@ -450,12 +453,20 @@ const Dashboard = () => {
                             <p className="text-sm text-slate-600 leading-relaxed mb-4">
                                 Take deep breaths throughout the day. Even 2-3 minutes of box breathing can help reset your nervous system and improve focus.
                             </p>
-                            <Link 
-                                to="/breathing" 
-                                className="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-cyan-500 to-teal-500 text-white font-bold rounded-xl shadow-lg shadow-cyan-500/20 hover:shadow-cyan-500/40 hover:-translate-y-1 transition-all w-fit text-sm"
-                            >
-                                <Wind size={16} /> Start
-                            </Link>
+                            <div className="flex flex-wrap gap-3">
+                                <Link 
+                                    to="/breathing" 
+                                    className="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-cyan-500 to-teal-500 text-white font-bold rounded-xl shadow-lg shadow-cyan-500/20 hover:shadow-cyan-500/40 hover:-translate-y-1 transition-all w-fit text-sm"
+                                >
+                                    <Wind size={16} /> Start
+                                </Link>
+                                <button 
+                                    onClick={() => setFeedbackOpen(true)}
+                                    className="inline-flex items-center gap-2 px-5 py-2.5 bg-white text-cyan-600 border border-cyan-200 font-bold rounded-xl shadow-[0_4px_10px_rgba(6,182,212,0.1)] hover:bg-cyan-50 hover:-translate-y-1 transition-all w-fit text-sm"
+                                >
+                                    <MessageCircle size={16} /> Give Feedback
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </motion.div>

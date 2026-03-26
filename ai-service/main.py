@@ -1,4 +1,6 @@
 import os
+import shutil
+from datetime import datetime
 import uvicorn
 import numpy as np
 from fastapi import FastAPI, UploadFile, File, HTTPException
@@ -142,22 +144,25 @@ async def predict_emotion(file: UploadFile = File(...)):
     # Standardize filename to avoid errors with random/None
     original_filename = file.filename or "audio.wav"
     temp_path = f"temp_{random.randint(1000, 9999)}_{original_filename}"
-    print(f"Received prediction request for: {original_filename}")
+    print(f"[{datetime.now().strftime('%H:%M:%S')}] Received prediction request for: {original_filename}")
     
     try:
         # Save uploaded file
         content = await file.read()
+        print(f"[{datetime.now().strftime('%H:%M:%S')}] File read complete ({len(content)} bytes)")
         if not content:
             raise ValueError("Empty file received")
             
         with open(temp_path, "wb") as buffer:
             buffer.write(content)
+        print(f"[{datetime.now().strftime('%H:%M:%S')}] File saved to disk: {temp_path}")
         
         # If the model isn't loaded or required audio libraries aren't
         # available, return a mock prediction so the service remains usable.
         if model is None or librosa is None:
-            print(f"MOCK MODE: Model loaded={model is not None}, Librosa loaded={librosa is not None}")
+            print(f"[{datetime.now().strftime('%H:%M:%S')}] MOCK MODE: Model loaded={model is not None}, Librosa loaded={librosa is not None}")
             temp_features = extract_audio_features_file(temp_path)
+            print(f"[{datetime.now().strftime('%H:%M:%S')}] Mock features extracted")
             stressScore = compute_stress_score(temp_features)
             return {
                 "emotion": random.choice(EMOTIONS), 
