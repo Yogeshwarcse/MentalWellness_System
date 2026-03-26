@@ -109,7 +109,7 @@ const processVoice = async (req, res) => {
             console.error('AI Service Error Data:', JSON.stringify(error.response?.data));
             console.error('AI Service Error Message:', error.message);
             // Fallback for demo purposes if AI service is down
-            emotionData = { emotion: 'neutral', confidence: 0.5, mode: 'fallback' };
+            emotionData = { emotion: 'error_fallback', confidence: 0.0, mode: 'fallback' };
         }
 
         const { emotion, confidence, stressScore, audioFeatures } = emotionData;
@@ -186,6 +186,8 @@ const processVoice = async (req, res) => {
             stressScore: stressScore || 0,
             crisis,
             helpline: '988',
+            mode: emotionData.mode,
+            ai_error: emotionData.error || emotionData.ai_error || null,
             actions: (stressScore || 0) > 75 ? ['deep_breathing', 'call_counselor', 'go_to_safe_place'] : [],
             mindfulnessGuidance
         });

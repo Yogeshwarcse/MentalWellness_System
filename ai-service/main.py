@@ -205,7 +205,9 @@ async def predict_emotion(file: UploadFile = File(...)):
                 "audioFeatures": audio_summary
             }
         except Exception as ai_err:
-            print(f"AI Logic Error: {ai_err}")
+            print(f"[{datetime.now().strftime('%H:%M:%S')}] AI Logic Error: {ai_err}")
+            import traceback
+            traceback.print_exc()
             audio_summary = extract_audio_features_file(temp_path)
             stressScore = compute_stress_score(audio_summary)
             return {
@@ -213,7 +215,7 @@ async def predict_emotion(file: UploadFile = File(...)):
                 "confidence": 0.7, 
                 "mode": "mock_fallback", 
                 "stressScore": stressScore,
-                "ai_error": str(ai_err)
+                "error": str(ai_err)
             }
         
     except Exception as server_err:
