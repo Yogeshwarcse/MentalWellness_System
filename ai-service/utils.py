@@ -33,18 +33,7 @@ def get_audio_features(path):
     # Load audio file
     data, sample_rate = librosa.load(path, duration=2.5, offset=0.6)
     
-    # Extract features
-    res1 = extract_features(data, sample_rate)
-    result = np.array(res1)
-    
-    # Add noise
-    noise_data = data + 0.035 * np.random.uniform() * np.max(data)
-    res2 = extract_features(noise_data, sample_rate)
-    result = np.vstack((result, res2))
-    
-    # Pitch shifting
-    new_data = librosa.effects.pitch_shift(data, sr=sample_rate, n_steps=0.7)
-    res3 = extract_features(new_data, sample_rate)
-    result = np.vstack((result, res3))
+    # Extract features for prediction (no augmentation needed here)
+    result = extract_features(data, sample_rate)
     
     return result

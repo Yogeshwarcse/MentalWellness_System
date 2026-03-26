@@ -1,10 +1,11 @@
 import os
-import shutil
 from datetime import datetime
+from contextlib import asynccontextmanager
 import uvicorn
 import numpy as np
 from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from utils import extract_features
 
 # Optional heavy imports — handle missing packages gracefully so the service
 # can run in mock mode when dependencies like tensorflow or librosa are
@@ -21,37 +22,32 @@ except Exception:
 
 import random
 
-app = FastAPI(title="Mental Wellness AI Emotion Detection")
-
-# Enable CORS
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
 # Load pre-trained model (assuming it exists or will be trained)
 MODEL_PATH = "emotion_model.h5"
 model = None
 
-
-@app.on_event("startup")
-async def load_model():
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Startup logic
     global model
-    if tf is None:
-        print("TensorFlow not available — running in MOCK mode.")
-        return
-
-    if os.path.exists(MODEL_PATH):
-        try:
-            model = tf.keras.models.load_model(MODEL_PATH)
-            print("Model loaded successfully.")
-        except Exception as e:
-            print(f"Error loading model: {e}")
-            print("System will run in MOCK mode for now.")
+    if tf is not None:
+        if os.path.exists(MODEL_PATH):
+            try:
+                model = tf.keras.models.load_model(MODEL_PATH)
+                print("Model loaded successfully.")
+            except Exception as e:
+                print(f"Error loading model: {e}")
+                print("System will run in MOCK mode for now.")
+        else:
+            print("Model file not found. System will run in MOCK mode for now.")
     else:
-        print("Model file not found. System will run in MOCK mode for now.")
+        print("TensorFlow not available — running in MOCK mode.")
+    
+    yield
+    # Shutdown logic (if any)
+    print("Shutting down AI service...")
+
+app = FastAPI(title="Mental Wellness AI Emotion Detection", lifespan=lifespan)
 
 EMOTIONS = ["angry", "disgust", "fear", "happy", "neutral", "sad", "surprise"]
 
@@ -148,7 +144,7 @@ async def predict_emotion(file: UploadFile = File(...)):
     
     try:
         # Save uploaded file
-        content = await file.read()
+        content: bytes = await file.read()
         print(f"[{datetime.now().strftime('%H:%M:%S')}] File read complete ({len(content)} bytes)")
         if not content:
             raise ValueError("Empty file received")
@@ -174,11 +170,6 @@ async def predict_emotion(file: UploadFile = File(...)):
         
         # AI Processing
         try:
-            # Try both relative and absolute import for different IDE systems
-            try:
-                from utils import extract_features
-            except ImportError:
-                from .utils import extract_features
             # librosa.load is heavy, wrap in nested try
             data, sr = librosa.load(temp_path, duration=2.5, offset=0.6)
             features = extract_features(data, sr)
@@ -191,7 +182,10 @@ async def predict_emotion(file: UploadFile = File(...)):
             audio_summary = extract_audio_features_file(temp_path)
             stressScore = compute_stress_score(audio_summary)
             
-            predictions = model.predict(features_input, verbose=0)
+            if model is not None:
+                predictions = model.predict(features_input, verbose=0)
+            else:
+                raise ValueError("Model is not initialized")
             
             # Robust prediction parsing
             if len(predictions.shape) > 1:
