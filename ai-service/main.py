@@ -259,7 +259,7 @@ async def predict_emotion(file: UploadFile = File(...)):
 
 @app.get("/health")
 async def health_check():
-    return {"status": "healthy", "model_loaded": model is not None}
+    return {"status": "healthy", "model_loaded": model is not None or tflite_interpreter is not None}
 
 if __name__ == "__main__":
     # Default to port 8000 to align with docker-compose and local dev tooling.
