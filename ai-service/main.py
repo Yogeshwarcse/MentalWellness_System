@@ -158,7 +158,7 @@ def extract_audio_features_file(path: str) -> dict:
 
 @app.post("/predict")
 @app.post("/predict-emotion")
-async def predict_emotion(file: UploadFile = File(...)):
+def predict_emotion(file: UploadFile = File(...)):
     # Standardize filename to avoid errors with random/None
     original_filename = file.filename or "audio.wav"
     temp_path = f"temp_{random.randint(1000, 9999)}_{original_filename}"
@@ -166,7 +166,7 @@ async def predict_emotion(file: UploadFile = File(...)):
     
     try:
         # Save uploaded file
-        content: bytes = await file.read()
+        content: bytes = file.file.read()
         print(f"[{datetime.now().strftime('%H:%M:%S')}] File read complete ({len(content)} bytes)")
         if not content:
             raise ValueError("Empty file received")

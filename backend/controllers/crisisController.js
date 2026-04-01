@@ -4,7 +4,7 @@ const MoodLog = require('../models/MoodLog');
 const FormData = require('form-data');
 const fs = require('fs');
 
-const AI_SERVICE_BASE_URL = process.env.AI_SERVICE_URL;
+const AI_SERVICE_BASE_URL = process.env.AI_SERVICE_URL || 'http://localhost:8000';
 
 // Simple keyword-based detection for crisis phrases
 const CRISIS_KEYWORDS = [
