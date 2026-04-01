@@ -16,7 +16,7 @@ def extract_features(data, sample_rate):
     result = np.hstack((result, chroma_stft))
 
     # MFCC
-    mfcc = np.mean(librosa.feature.mfcc(y=data, sr=sample_rate, n_mfcc=40).T, axis=0)
+    mfcc = np.mean(librosa.feature.mfcc(y=data, sr=sample_rate, n_mfcc=20).T, axis=0)
     result = np.hstack((result, mfcc))
 
     # Root Mean Square Value

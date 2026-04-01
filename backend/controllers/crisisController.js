@@ -38,7 +38,7 @@ async function evaluateCrisis(req, res) {
             form.append('file', fs.createReadStream(audioPath));
 
             try {
-                const aiResp = await axios.post(`${AI_SERVICE_BASE_URL}/predict-emotion`, form, { headers: form.getHeaders() });
+                const aiResp = await axios.post(`${AI_SERVICE_BASE_URL}/predict-emotion`, form, { headers: form.getHeaders(), timeout: 60000 });
                 audioFeatures = aiResp.data.audioFeatures || null;
                 stressScore = aiResp.data.stressScore || 0;
             } catch (aiErr) {

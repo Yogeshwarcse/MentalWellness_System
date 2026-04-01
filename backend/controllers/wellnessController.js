@@ -100,7 +100,7 @@ const processVoice = async (req, res) => {
             console.log(`Calling AI Service at: ${AI_SERVICE_BASE_URL}/predict`);
             const aiResponse = await axios.post(`${AI_SERVICE_BASE_URL}/predict`, formData, {
                 headers: { ...formData.getHeaders() },
-                timeout: 30000 // Increase to 30 seconds
+                timeout: 60000 // Increase to 60 seconds for free tier spin-ups and heavy audio decoding
             });
             emotionData = aiResponse.data;
             console.log('AI Service Success:', JSON.stringify(emotionData));
